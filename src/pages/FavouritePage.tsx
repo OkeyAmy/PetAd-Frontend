@@ -4,7 +4,7 @@ import { FormSelect } from "../components/ui/formSelect";
 
 // Import images provided by user
 import dogImg from "../assets/dog.png";
-import parrotImg from "../assets/parrot.png";
+import parrotImg from "../assets/parrot_1.png";
 import catImg from "../assets/cat.png";
 
 // Mock Data
@@ -99,13 +99,9 @@ export default function FavouritePage() {
 
     return (
         <div className="min-h-screen bg-[#F9FAFB] pb-24">
-            {/* ── Navbar Placeholder ── */}
-            <div className="bg-white border-b border-gray-100 h-20 mb-8" />
-
             <div className="max-w-[1240px] mx-auto px-6 lg:px-8">
-
                 {/* Page Header & Filters */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mt-[30px] mb-[20px] gap-4">
                     <h1 className="text-[22px] font-bold text-[#0D162B]">
                         Favourites ({filteredPets.length})
                     </h1>
@@ -156,7 +152,9 @@ export default function FavouritePage() {
 
                 {/* Pet Grid */}
                 {filteredPets.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div
+                    className="flex flex-wrap gap-[20px]"
+                    >
                         {filteredPets.map((pet) => (
                             <PetCard
                                 key={pet.id}
