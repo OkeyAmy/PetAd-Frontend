@@ -1,4 +1,10 @@
-import type { ApiClientConfig, ApiError } from "../types/auth";
+import type { ApiClientConfig } from "../types/auth";
+import {
+	ApiError,
+	ForbiddenError,
+	NotFoundError,
+	ValidationApiError,
+} from "./api-errors";
 
 class ApiClient {
 	private baseURL: string;
@@ -50,11 +56,10 @@ class ApiClient {
 
 				this.onUnauthorized?.();
 
-				const error: ApiError = new Error("Unauthorized access");
-				error.status = 401;
-				error.name = "ApiError";
-
-				throw error;
+				throw new ApiError("Unauthorized access", {
+					status: 401,
+					code: "UNAUTHORIZED",
+				});
 			}
 
 			let errorData: unknown;
@@ -76,11 +81,44 @@ class ApiClient {
 				errorData = `Request failed with status ${response.status}`;
 			}
 
-			const error: ApiError = new Error(message);
-			error.status = response.status;
-			error.data = errorData;
-			error.name = "ApiError";
-			throw error;
+			const code = (errorData as { code?: string } | undefined)?.code;
+
+			if (response.status === 403) {
+				throw new ForbiddenError(message, {
+					status: 403,
+					code,
+					data: errorData,
+				});
+			}
+
+			if (response.status === 404) {
+				throw new NotFoundError(message, {
+					status: 404,
+					code,
+					data: errorData,
+				});
+			}
+
+			if (response.status === 422) {
+				const fields =
+					(errorData as { fields?: Record<string, string[]> } | undefined)
+						?.fields ??
+					(errorData as { errors?: Record<string, string[]> } | undefined)
+						?.errors ??
+					{};
+
+				throw new ValidationApiError(message, fields, {
+					status: 422,
+					code,
+					data: errorData,
+				});
+			}
+
+			throw new ApiError(message, {
+				status: response.status,
+				code,
+				data: errorData,
+			});
 		}
 
 		// Handle empty responses
@@ -111,25 +149,21 @@ class ApiClient {
 		} catch (error) {
 			// Check if it's a network error
 			if (error instanceof TypeError && error.message === "Failed to fetch") {
-				const networkError: ApiError = new Error(
-					"Network error - please check your connection",
-				);
-				networkError.isNetworkError = true;
-				networkError.name = "ApiError";
-				throw networkError;
+				throw new ApiError("Network error - please check your connection", {
+					code: "NETWORK_ERROR",
+					isNetworkError: true,
+				});
 			}
 
 			// Re-throw if it's already an ApiError
-			if ((error as ApiError).name === "ApiError") {
+			if (error instanceof ApiError || (error as Error).name === "ApiError") {
 				throw error;
 			}
 
 			// Wrap unknown errors
-			const wrappedError: ApiError = new Error(
+			throw new ApiError(
 				error instanceof Error ? error.message : "Unknown error occurred",
 			);
-			wrappedError.name = "ApiError";
-			throw wrappedError;
 		}
 	}
 

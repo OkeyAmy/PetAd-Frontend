@@ -1,5 +1,11 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from "vitest";
 import type { ApiClientConfig } from "../../types/auth";
+import {
+	ApiError,
+	NotFoundError,
+	ValidationApiError,
+	ForbiddenError,
+} from "../api-errors";
 import { createApiClient, getApiClient } from "../api-client";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -228,14 +234,16 @@ describe("ApiClient", () => {
 	// ── Error handling ────────────────────────────────────────────────────────
 
 	describe("error handling", () => {
-		it("throws an ApiError with status on non-2xx responses", async () => {
+		it("throws a NotFoundError on 404 responses", async () => {
 			fetchMock.mockResolvedValueOnce(
 				makeResponse({ message: "Not found" }, 404),
 			);
 			const client = freshClient();
 
-			await expect(client.get("/missing")).rejects.toMatchObject({
-				name: "ApiError",
+			const promise = client.get("/missing");
+
+			await expect(promise).rejects.toBeInstanceOf(NotFoundError);
+			await expect(promise).rejects.toMatchObject({
 				status: 404,
 				message: "Not found",
 			});
@@ -269,9 +277,7 @@ describe("ApiClient", () => {
 		});
 
 		it("re-throws existing ApiErrors without wrapping them", async () => {
-			const original: any = new Error("Already an api error");
-			original.name = "ApiError";
-			original.status = 422;
+			const original = new ApiError("Already an api error", { status: 422 });
 			fetchMock.mockRejectedValueOnce(original);
 			const client = freshClient();
 
@@ -285,6 +291,39 @@ describe("ApiClient", () => {
 			await expect(client.get("/test")).rejects.toMatchObject({
 				name: "ApiError",
 				message: "Some unexpected error",
+			});
+		});
+
+		it("throws a ValidationApiError on 422 responses", async () => {
+			fetchMock.mockResolvedValueOnce(
+				makeResponse(
+					{ message: "Invalid input", fields: { email: ["Required"] } },
+					422,
+				),
+			);
+			const client = freshClient();
+
+			const promise = client.get("/invalid");
+
+			await expect(promise).rejects.toBeInstanceOf(ValidationApiError);
+			await expect(promise).rejects.toMatchObject({
+				status: 422,
+				fields: { email: ["Required"] },
+			});
+		});
+
+		it("throws a ForbiddenError on 403 responses", async () => {
+			fetchMock.mockResolvedValueOnce(
+				makeResponse({ message: "Forbidden" }, 403),
+			);
+			const client = freshClient();
+
+			const promise = client.get("/forbidden");
+
+			await expect(promise).rejects.toBeInstanceOf(ForbiddenError);
+			await expect(promise).rejects.toMatchObject({
+				status: 403,
+				message: "Forbidden",
 			});
 		});
 	});

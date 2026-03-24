@@ -9,7 +9,7 @@ import App from './App.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter> {/* 2. Wrap your App */}
         <App />
       </BrowserRouter>
     </QueryClientProvider>
