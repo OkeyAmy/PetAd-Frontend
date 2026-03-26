@@ -1,5 +1,8 @@
 import { http, HttpResponse, delay } from "msw";
-import type { TimelineEntry } from "../../types/adoption";
+import type {
+  AdoptionTimelineEntry,
+  AdoptionDetails,
+} from "../../types/adoption";
 
 const MOCK_TIMELINE: TimelineEntry[] = [
   {
@@ -26,9 +29,28 @@ const MOCK_TIMELINE: TimelineEntry[] = [
   },
 ];
 
+const MOCK_ADOPTION_DETAILS: AdoptionDetails = {
+  id: "adoption-1",
+  status: "ESCROW_FUNDED",
+  petId: "pet-1",
+  adopterId: "user-1",
+  createdAt: "2026-03-25T10:00:00Z",
+  updatedAt: "2026-03-25T10:10:00Z",
+};
+
 export const adoptionHandlers = [
   http.get("/api/adoption/:id/timeline", async () => {
     await delay(100);
     return HttpResponse.json(MOCK_TIMELINE);
+  }),
+  http.get("/api/adoption/:id", async ({ params }) => {
+    await delay(100);
+    const { id } = params;
+
+    if (id === "adoption-1") {
+      return HttpResponse.json(MOCK_ADOPTION_DETAILS);
+    }
+
+    return HttpResponse.json({ error: "Adoption not found" }, { status: 404 });
   }),
 ];

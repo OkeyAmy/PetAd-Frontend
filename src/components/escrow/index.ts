@@ -6,4 +6,5 @@ export * from "./EscrowStatusBadge";
 export * from "./EscrowStatusCard";
 export * from "./EscrowTimelinePanel";
 export * from "./StellarTxLink";
+export * from "./CompleteAdoptionButton";
 export * from "./SplitOutcomeChart";

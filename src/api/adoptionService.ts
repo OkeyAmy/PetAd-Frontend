@@ -1,5 +1,5 @@
 import { apiClient } from "../lib/api-client";
-import type { TimelineEntry } from "../types/adoption";
+import type { AdoptionTimelineEntry, AdoptionDetails } from "../types/adoption";
 
 export interface AdoptionRating {
   rating: number;
@@ -9,6 +9,10 @@ export interface AdoptionRating {
 }
 
 export const adoptionService = {
+  async getDetails(adoptionId: string): Promise<AdoptionDetails> {
+    return apiClient.get(`/adoption/${adoptionId}`);
+  },
+
   async submitRating(ratingData: AdoptionRating): Promise<void> {
     // TODO: Replace with actual API endpoint
     console.log("Submitting rating:", ratingData);
@@ -20,7 +24,11 @@ export const adoptionService = {
     return Promise.resolve();
   },
 
-  async getTimeline(adoptionId: string): Promise<TimelineEntry[]> {
-    return apiClient.get<TimelineEntry[]>(`/adoption/${adoptionId}/timeline`);
+  async completeAdoption(adoptionId: string): Promise<void> {
+    return apiClient.post(`/adoption/${adoptionId}/complete`);
+  },
+
+  async getTimeline(adoptionId: string): Promise<AdoptionTimelineEntry[]> {
+    return apiClient.get(`/adoption/${adoptionId}/timeline`);
   },
 };
