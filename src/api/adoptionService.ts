@@ -8,6 +8,11 @@ export interface AdoptionRating {
   petId?: string;
 }
 
+export interface StatusOverride {
+  status: string
+  reason: string
+}
+
 export const adoptionService = {
   async getDetails(adoptionId: string): Promise<AdoptionDetails> {
     return apiClient.get(`/adoption/${adoptionId}`);
@@ -30,5 +35,9 @@ export const adoptionService = {
 
   async getTimeline(adoptionId: string): Promise<AdoptionTimelineEntry[]> {
     return apiClient.get(`/adoption/${adoptionId}/timeline`);
+  },
+
+   async editStatus(adoptionId: string, data: StatusOverride): Promise<AdoptionTimelineEntry[]> {
+    return apiClient.patch(`/adoption/${adoptionId}/status`, data );
   },
 };
