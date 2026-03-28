@@ -53,3 +53,26 @@ export interface TimelineEntry {
   stellarExplorerUrl?: string;
   timestamp: string;
 }
+
+export type DecisionStatus = "APPROVED" | "REJECTED" | "EXPIRED";
+
+export interface ApprovalDecision {
+  id: string;
+  approverName: string;
+  approverRole: string;
+  status: DecisionStatus;
+  reason?: string;
+  timestamp: string;
+  txHash?: string;
+}
+
+export interface AdminApprovalQueueItem {
+  id: string;
+  shelter: string;
+  pet: string;
+  adopter: string;
+  submitted: string;
+  shelterApproved: boolean;
+  daysWaiting: number;
+  isOverdue: boolean;
+}
