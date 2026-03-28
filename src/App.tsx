@@ -18,10 +18,8 @@ import { SettlementSummaryPage } from "./pages/SettlementSummaryPage";
 import AdoptionTimelinePage from "./pages/AdoptionTimelinePage";
 import ModalPreview from "./pages/ModalPreview";
 import StatusPollingDemo from "./pages/StatusPollingDemo";
-<<<<<<< feat/custody-timeline-page
 import CustodyTimelinePage from "./pages/CustodyTimelinePage";
-=======
->>>>>>> main
+import AdminApprovalQueuePage from "./pages/AdminApprovalQueuePage";
 
 function App() {
 
@@ -48,6 +46,9 @@ function App() {
         <Route path="/adoption/:adoptionId/settlement" element={<SettlementSummaryPage />} />
         <Route path="/adoption/:adoptionId/timeline" element={<AdoptionTimelinePage />} />
 
+        {/* Admin Approvals */}
+        <Route path="/admin/approvals" element={<AdminApprovalQueuePage />} />
+
         {/* Custody Routes */}
         <Route path="/custody/:custodyId/timeline" element={<CustodyTimelinePage />} />
 
@@ -58,7 +59,6 @@ function App() {
       </Route>
     </Routes>
   );
-
 }
 
 export default App;
