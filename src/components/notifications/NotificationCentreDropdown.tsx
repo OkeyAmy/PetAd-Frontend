@@ -4,6 +4,7 @@ import {
   useEffect,
   useCallback,
   useId,
+  useMemo,
 } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
@@ -72,7 +73,7 @@ export function NotificationCentreDropdown({
     staleTime: 30_000,
   });
 
-  const notifications: Notification[] = data?.data ?? [];
+  const notifications: Notification[] = useMemo(() => data?.data ?? [], [data?.data]); 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const showUnreadDot = hasUnread || unreadCount > 0;
 
